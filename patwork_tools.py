@@ -20,8 +20,14 @@ bl_info = {
 ui = {
 	'panel_category': 'patwork',
 	'label_tools': 'Tools',
+
+	'label_world': 'World',
+	'id_syncskywithsun': 'patwork.syncskywithsun',
+	'txt_syncskywithsun': 'Sync sky',
+
+	'label_archicad': 'ArchiCad',
 	'id_archicadgroups': 'patwork.archicadgroups',
-	'txt_archicadgroups': 'ArchiCad groups'
+	'txt_archicadgroups': 'Make groups'
 }
 
 # ----------------------------------------------------------------------------
@@ -30,7 +36,46 @@ from math import *
 from mathutils import *
 
 # ----------------------------------------------------------------------------
+class SyncSkyWithSun(bpy.types.Operator):
+	'''Synchronize Sky Texture with Sun lamp'''
+
+	bl_idname = ui['id_syncskywithsun']
+	bl_label = ui['txt_syncskywithsun']
+
+	# ----------------------------------------------------------------------------
+	def my_sync_sky_with_sun(self):
+
+		if 'Sky Texture' in bpy.context.scene.world.node_tree.nodes:
+			sky = bpy.context.scene.world.node_tree.nodes['Sky Texture']
+		else:
+			self.report({'ERROR'}, '%s: cannot find sky texture!' % ui['txt_syncskywithsun'])
+			return False
+
+		if 'Sun' in bpy.context.scene.objects:
+			sun = bpy.context.scene.objects['Sun']
+		else:
+			self.report({'ERROR'}, '%s: cannot find sun lamp!' % ui['txt_syncskywithsun'])
+			return False
+
+		m = sun.matrix_world
+		sky.sun_direction = Vector((m[0][2], m[1][2], m[2][2]))
+
+		print('synchronized %s to %s (%f, %f, %f)' % (sky.name, sun.name, m[0][2], m[1][2], m[2][2]))
+
+		return True
+
+	# ----------------------------------------------------------------------------
+	def execute(self, context):
+
+		if self.my_sync_sky_with_sun():
+			self.report({'INFO'}, '%s: done.' % ui['txt_syncskywithsun'])
+
+		return {'FINISHED'}
+
+# ----------------------------------------------------------------------------
 class ArchicadGroups(bpy.types.Operator):
+	'''Clean mess from ArchiCad'''
+
 	bl_idname = ui['id_archicadgroups']
 	bl_label = ui['txt_archicadgroups']
 
@@ -116,17 +161,24 @@ class ToolsPanel(bpy.types.Panel):
 	# ----------------------------------------------------------------------------
 	def draw(self, context):
 		col = self.layout.column(align = True)
+
+		col.label(ui['label_world'])
+		col.operator(ui['id_syncskywithsun'], text = ui['txt_syncskywithsun'], icon = 'MAT_SPHERE_SKY')
+
+		col.label(ui['label_archicad'])
 		col.operator(ui['id_archicadgroups'], text = ui['txt_archicadgroups'], icon = 'SCRIPTWIN')
 
 # ----------------------------------------------------------------------------
 def register():
 	print('register: %s (%d.%d)' % (bl_info['name'], bl_info['version'][0], bl_info['version'][1]))
+	bpy.utils.register_class(SyncSkyWithSun)
 	bpy.utils.register_class(ArchicadGroups)
 	bpy.utils.register_class(ToolsPanel)
 
 # ----------------------------------------------------------------------------
 def unregister():
 	print('unregister: %s (%d.%d)' % (bl_info['name'], bl_info['version'][0], bl_info['version'][1]))
+	bpy.utils.unregister_class(SyncSkyWithSun)
 	bpy.utils.unregister_class(ArchicadGroups)
 	bpy.utils.unregister_class(ToolsPanel)
 

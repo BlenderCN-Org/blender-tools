@@ -14,6 +14,15 @@ bl_info = {
 }
 ```
 
+## Synchronize Sky Texture with Sun lamp
+
+```python
+sky = bpy.context.scene.world.node_tree.nodes['Sky Texture']
+sun = bpy.context.scene.objects['Sun']
+m = sun.matrix_world
+sky.sun_direction = Vector((m[0][2], m[1][2], m[2][2]))
+```
+
 ## ArchiCad groups
 
 ```python
