@@ -148,7 +148,7 @@ class CopyRenderSettings(bpy.types.Operator):
 		txt = ''
 
 		for key in dir(object_source):
-			if hasattr(object_source, key) and not key.startswith('__') and not key.startswith('debug_'):
+			if hasattr(object_source, key) and key != 'name' and not key.startswith('__') and not key.startswith('debug_'):
 				val = getattr(object_source, key)
 
 				if (isinstance(val, (int, float, bool))):
