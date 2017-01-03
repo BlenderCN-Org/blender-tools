@@ -2,6 +2,7 @@
 #
 # patwork blender tools addon
 # v0.1 - 2016-04-07
+# v0.2 - 2017-01-01
 #
 
 # ----------------------------------------------------------------------------
@@ -9,8 +10,8 @@ bl_info = {
 	'name': 'patwork tools',
 	'description': 'My tools for Blender',
 	'author': 'patwork@gmail.com',
-	'version': (0, 1),
-	'blender': (2, 77, 0),
+	'version': (0, 2),
+	'blender': (2, 78, 0),
 	'location': 'Tool Shelf',
 	'warning': '',
 	'wiki_url': 'https://github.com/patwork/blender-tools',
@@ -27,7 +28,11 @@ ui = {
 
 	'label_archicad': 'ArchiCad',
 	'id_archicadgroups': 'patwork.archicadgroups',
-	'txt_archicadgroups': 'Make groups'
+	'txt_archicadgroups': 'Make groups',
+
+	'label_mesh': 'Mesh',
+	'id_renamemeshes': 'patwork.renamemeshes',
+	'txt_renamemeshes': 'Rename meshes'
 }
 
 # ----------------------------------------------------------------------------
@@ -151,6 +156,55 @@ class ArchicadGroups(bpy.types.Operator):
 		return {'FINISHED'}
 
 # ----------------------------------------------------------------------------
+class RenameMeshes(bpy.types.Operator):
+	'''Rename meshes to match parent objects'''
+
+	bl_idname = ui['id_renamemeshes']
+	bl_label = ui['txt_renamemeshes']
+
+	# ----------------------------------------------------------------------------
+	def my_rename_meshes(self):
+
+		ok = 0
+		warn = 0
+		err = 0
+
+		for obj in bpy.data.objects:
+			if obj.type == 'MESH' and obj.name != obj.data.name:
+
+				if obj.data.users > 1:
+					print('shared mesh: %s'% obj.data.name)
+					warn = warn + 1
+				elif obj.name in bpy.data.meshes:
+					print('name collision: %s'% obj.name)
+					err = err + 1
+				else:
+					print('rename %s - %s' % (obj.name, obj.data.name))
+					obj.data.name = obj.name
+					ok = ok + 1
+
+		msg = '%s: done (%d/%d/%d).' % (ui['txt_archicadgroups'], ok, warn, err)
+
+		if (err):
+			self.report({'ERROR'}, msg)
+			return False
+		elif (warn):
+			self.report({'WARNING'}, msg)
+			return False
+
+		print(msg)
+
+		return True
+
+	# ----------------------------------------------------------------------------
+	def execute(self, context):
+
+		if self.my_rename_meshes():
+			self.report({'INFO'}, '%s: done.' % ui['txt_renamemeshes'])
+
+		return {'FINISHED'}
+
+# ----------------------------------------------------------------------------
 class ToolsPanel(bpy.types.Panel):
 	bl_space_type = 'VIEW_3D'
 	bl_region_type = 'TOOLS'
@@ -168,11 +222,15 @@ class ToolsPanel(bpy.types.Panel):
 		col.label(ui['label_archicad'])
 		col.operator(ui['id_archicadgroups'], text = ui['txt_archicadgroups'], icon = 'SCRIPTWIN')
 
+		col.label(ui['label_mesh'])
+		col.operator(ui['id_renamemeshes'], text = ui['txt_renamemeshes'], icon = 'OOPS')
+
 # ----------------------------------------------------------------------------
 def register():
 	print('register: %s (%d.%d)' % (bl_info['name'], bl_info['version'][0], bl_info['version'][1]))
 	bpy.utils.register_class(SyncSkyWithSun)
 	bpy.utils.register_class(ArchicadGroups)
+	bpy.utils.register_class(RenameMeshes)
 	bpy.utils.register_class(ToolsPanel)
 
 # ----------------------------------------------------------------------------
@@ -180,6 +238,7 @@ def unregister():
 	print('unregister: %s (%d.%d)' % (bl_info['name'], bl_info['version'][0], bl_info['version'][1]))
 	bpy.utils.unregister_class(SyncSkyWithSun)
 	bpy.utils.unregister_class(ArchicadGroups)
+	bpy.utils.unregister_class(RenameMeshes)
 	bpy.utils.unregister_class(ToolsPanel)
 
 # ----------------------------------------------------------------------------
