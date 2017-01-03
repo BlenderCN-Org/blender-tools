@@ -26,18 +26,22 @@ ui = {
 	'label_world': 'World',
 	'id_syncskywithsun': 'patwork.syncskywithsun',
 	'txt_syncskywithsun': 'Sync sky',
+	'icon_syncskywithsun': 'MAT_SPHERE_SKY',
 
 	'label_mesh': 'Mesh',
 	'id_renamemeshes': 'patwork.renamemeshes',
 	'txt_renamemeshes': 'Rename meshes',
+	'icon_renamemeshes': 'OOPS',
 
 	'label_clipboard': 'Clipboard',
 	'id_copyrendersettings': 'patwork.rendersettings',
 	'txt_copyrendersettings': 'Render settings',
+	'icon_copyrendersettings': 'TEXT',
 
 	'label_archicad': 'ArchiCad',
 	'id_archicadgroups': 'patwork.archicadgroups',
-	'txt_archicadgroups': 'Make groups'
+	'txt_archicadgroups': 'Make groups',
+	'icon_archicadgroups': 'SCRIPTWIN'
 }
 
 # ----------------------------------------------------------------------------
@@ -265,16 +269,16 @@ class ToolsPanel(bpy.types.Panel):
 		col = self.layout.column(align = True)
 
 		col.label(ui['label_world'])
-		col.operator(ui['id_syncskywithsun'], text = ui['txt_syncskywithsun'], icon = 'MAT_SPHERE_SKY')
+		col.operator(ui['id_syncskywithsun'], text = ui['txt_syncskywithsun'], icon = ui['icon_syncskywithsun'])
 
 		col.label(ui['label_mesh'])
-		col.operator(ui['id_renamemeshes'], text = ui['txt_renamemeshes'], icon = 'OOPS')
+		col.operator(ui['id_renamemeshes'], text = ui['txt_renamemeshes'], icon = ui['icon_renamemeshes'])
 
 		col.label(ui['label_clipboard'])
-		col.operator(ui['id_copyrendersettings'], text = ui['txt_copyrendersettings'], icon = 'TEXT')
+		col.operator(ui['id_copyrendersettings'], text = ui['txt_copyrendersettings'], icon = ui['icon_copyrendersettings'])
 
 		col.label(ui['label_archicad'])
-		col.operator(ui['id_archicadgroups'], text = ui['txt_archicadgroups'], icon = 'SCRIPTWIN')
+		col.operator(ui['id_archicadgroups'], text = ui['txt_archicadgroups'], icon = ui['icon_archicadgroups'])
 
 # ----------------------------------------------------------------------------
 def register():
