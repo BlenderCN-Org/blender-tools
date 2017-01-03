@@ -164,9 +164,16 @@ class CopyRenderSettings(bpy.types.Operator):
 	def my_copy_render_settings(self):
 
 		scene = bpy.context.scene
-		txt_render = self.my_get_attrs(scene.render, 'S.render')
-		txt_cycles = self.my_get_attrs(scene.cycles, 'S.cycles')
-		bpy.context.window_manager.clipboard = txt_render + txt_cycles
+
+		txt = '# %s (Blender %s %s)\n' % (scene.name, bpy.app.version_string, bpy.app.version_cycle);
+		txt = txt + self.my_get_attrs(scene.render, 'S.render')
+		txt = txt + self.my_get_attrs(scene.cycles, 'S.cycles')
+		txt = txt + self.my_get_attrs(scene.view_settings, 'S.view_settings')
+		txt = txt + self.my_get_attrs(scene.world.light_settings, 'S.world.light_settings')
+		txt = txt + self.my_get_attrs(scene.world.cycles, 'S.world.cycles')
+		txt = txt + '# ---\n'
+
+		bpy.context.window_manager.clipboard = txt
 
 		return True
 

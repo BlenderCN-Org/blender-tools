@@ -27,17 +27,17 @@ sky.sun_direction = Vector((m[0][2], m[1][2], m[2][2]))
 
 ```python
 for obj in bpy.data.objects:
-	# [...]
 	obj.data.name = obj.name
 ```
 
 ### Copy render settings to clipboard
 
 ```python
-scene = bpy.context.scene
-txt_render = self.my_get_attrs(scene.render, 'S.render')
-txt_cycles = self.my_get_attrs(scene.cycles, 'S.cycles')
-bpy.context.window_manager.clipboard = txt_render + txt_cycles
+bpy.context.scene.render
+bpy.context.scene.cycles
+bpy.context.scene.view_settings
+bpy.context.scene.world.light_settings
+bpy.context.scene.world.cycles
 ```
 
 ## ArchiCad groups
