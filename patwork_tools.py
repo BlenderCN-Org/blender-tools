@@ -4,6 +4,7 @@
 # v0.1 - 2016-04-07
 # v0.2 - 2017-01-01
 # v0.3 - 2017-01-03
+# v0.4 - 2017-10-03
 #
 
 # ----------------------------------------------------------------------------
@@ -11,8 +12,8 @@ bl_info = {
 	'name': 'patwork tools',
 	'description': 'My tools for Blender',
 	'author': 'patwork@gmail.com',
-	'version': (0, 3),
-	'blender': (2, 78, 0),
+	'version': (0, 4),
+	'blender': (2, 79, 0),
 	'location': 'Tool Shelf',
 	'warning': '',
 	'wiki_url': 'https://github.com/patwork/blender-tools',
@@ -32,6 +33,9 @@ ui = {
 	'id_renamemeshes': 'patwork.renamemeshes',
 	'txt_renamemeshes': 'Rename meshes',
 	'icon_renamemeshes': 'OOPS',
+	'id_cleanmeshes': 'patwork.cleanmeshes',
+	'txt_cleanmeshes': 'Clean meshes',
+	'icon_cleanmeshes': 'WIRE',
 
 	'label_clipboard': 'Clipboard',
 	'id_copyrendersettings': 'patwork.rendersettings',
@@ -132,6 +136,43 @@ class RenameMeshes(bpy.types.Operator):
 
 		if self.my_rename_meshes():
 			self.report({'INFO'}, '%s: done.' % ui['txt_renamemeshes'])
+
+		return {'FINISHED'}
+
+# ----------------------------------------------------------------------------
+class CleanMeshes(bpy.types.Operator):
+	'''Clean selected meshes by removing doubles and converting tris to quads'''
+	'''https://blenderartists.org/forum/showthread.php?376273-Remove-Doubles-and-Tris-to-Quads-for-all-imported-meshes-at-once'''
+
+	bl_idname = ui['id_cleanmeshes']
+	bl_label = ui['txt_cleanmeshes']
+
+	# ----------------------------------------------------------------------------
+	def my_clean_meshes(self):
+
+		if len(bpy.context.selected_objects) == 0:
+			self.report({'WARNING'}, 'nothing is selected')
+			return False
+
+		bpy.context.tool_settings.mesh_select_mode = (True, False, False)
+
+		for ob in bpy.context.selected_objects:
+			if ob.type == 'MESH':
+				print('cleaning %s' % ob.name)
+				bpy.context.scene.objects.active = ob #set active object
+				bpy.ops.object.mode_set(mode='EDIT') #switch to edit mode
+				bpy.ops.mesh.select_all(action='SELECT')
+				bpy.ops.mesh.remove_doubles() #remove doubles
+				bpy.ops.mesh.tris_convert_to_quads() #tris to quads
+				bpy.ops.object.mode_set(mode='OBJECT') #switch to object mode
+
+		return True
+
+	# ----------------------------------------------------------------------------
+	def execute(self, context):
+
+		if self.my_clean_meshes():
+			self.report({'INFO'}, '%s: done.' % ui['txt_cleanmeshes'])
 
 		return {'FINISHED'}
 
@@ -280,6 +321,8 @@ class ToolsPanel(bpy.types.Panel):
 
 		col.label(ui['label_mesh'])
 		col.operator(ui['id_renamemeshes'], text = ui['txt_renamemeshes'], icon = ui['icon_renamemeshes'])
+		col.separator()
+		col.operator(ui['id_cleanmeshes'], text = ui['txt_cleanmeshes'], icon = ui['icon_cleanmeshes'])
 
 		col.label(ui['label_clipboard'])
 		col.operator(ui['id_copyrendersettings'], text = ui['txt_copyrendersettings'], icon = ui['icon_copyrendersettings'])
@@ -292,6 +335,7 @@ def register():
 	print('register: %s (%d.%d)' % (bl_info['name'], bl_info['version'][0], bl_info['version'][1]))
 	bpy.utils.register_class(SyncSkyWithSun)
 	bpy.utils.register_class(RenameMeshes)
+	bpy.utils.register_class(CleanMeshes)
 	bpy.utils.register_class(CopyRenderSettings)
 	bpy.utils.register_class(ArchicadGroups)
 	bpy.utils.register_class(ToolsPanel)
@@ -301,6 +345,7 @@ def unregister():
 	print('unregister: %s (%d.%d)' % (bl_info['name'], bl_info['version'][0], bl_info['version'][1]))
 	bpy.utils.unregister_class(SyncSkyWithSun)
 	bpy.utils.unregister_class(RenameMeshes)
+	bpy.utils.unregister_class(CleanMeshes)
 	bpy.utils.unregister_class(CopyRenderSettings)
 	bpy.utils.unregister_class(ArchicadGroups)
 	bpy.utils.unregister_class(ToolsPanel)
